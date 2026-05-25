@@ -1,12 +1,10 @@
-import type { NextConfig } from 'next';
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   reactStrictMode: true,
   env: {
-    NEXT_PUBLIC_API_URL: process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000/api',
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api',
   },
   transpilePackages: ['@voyai/types'],
-
   images: {
     remotePatterns: [
       {
@@ -23,7 +21,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'cf.bstatic.com', // Booking.com hotel images
+        hostname: 'cf.bstatic.com',
       },
       {
         protocol: 'https',
