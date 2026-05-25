@@ -2,10 +2,13 @@ import express, { type Express, type Request, type Response, type NextFunction }
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import compression from 'compression';
+
+import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 
 import { env, corsOrigins, isProduction } from './config/env.js';
+import { errorHandler } from './middleware/error.middleware.js';
+import authRouter from './routes/auth.routes.js';
 
 const app: Express = express();
 
@@ -31,10 +34,10 @@ app.use(
   }),
 );
 
-app.use(compression());
 app.use(morgan(isProduction ? 'combined' : 'dev'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(cookieParser() as express.RequestHandler);
 
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1_000,
@@ -53,7 +56,7 @@ const authLimiter = rateLimit({
 });
 
 app.use('/api', globalLimiter);
-app.use('/api/v1/auth', authLimiter);
+app.use('/api/auth', authLimiter);
 
 app.use((req: Request, res: Response, next: NextFunction) => {
   const requestId = (req.headers['x-request-id'] as string | undefined) ?? crypto.randomUUID();
@@ -71,32 +74,16 @@ app.get('/health', (_req: Request, res: Response) => {
   });
 });
 
+app.use('/api/auth', authRouter);
+
 app.use((_req: Request, res: Response) => {
   res.status(404).json({
     success: false,
-    error: {
-      code: 'NOT_FOUND',
-      message: 'The requested resource does not exist',
-    },
-    timestamp: new Date().toISOString(),
+    message: 'The requested resource does not exist',
   });
 });
 
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-  console.error('Unhandled error:', err);
-
-  const statusCode = (err as { statusCode?: number }).statusCode ?? 500;
-  const message = isProduction ? 'An unexpected error occurred' : err.message;
-
-  res.status(statusCode).json({
-    success: false,
-    error: {
-      code: 'INTERNAL_SERVER_ERROR',
-      message,
-      ...(isProduction ? {} : { stack: err.stack }),
-    },
-    timestamp: new Date().toISOString(),
-  });
-});
+// errorHandler must be the last middleware — Express identifies error handlers by their 4-argument signature
+app.use(errorHandler);
 
 export default app;
