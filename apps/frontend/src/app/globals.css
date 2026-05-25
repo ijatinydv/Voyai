@@ -190,6 +190,33 @@
   }
 }
 
+@keyframes packingCheckDraw {
+  from {
+    stroke-dashoffset: 18;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes suitcaseBounce {
+  0%, 100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-7px) rotate(2deg);
+  }
+}
+
+.packing-check-path {
+  stroke-dasharray: 18;
+  stroke-dashoffset: 18;
+}
+
+.packing-check-path--checked {
+  animation: packingCheckDraw 100ms ease-out forwards;
+}
+
 @layer components {
   .glass-card {
     background: var(--surface-glass);
