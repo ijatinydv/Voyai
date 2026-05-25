@@ -84,9 +84,26 @@ export const itinerarySchema = z.array(
   }),
 );
 
-export const budgetEstimateSchema = z.record(z.number());
+export const budgetEstimateSchema = z.object({
+  flights: z.coerce.number().min(0),
+  accommodation: z.coerce.number().min(0),
+  food: z.coerce.number().min(0),
+  activities: z.coerce.number().min(0),
+  miscellaneous: z.coerce.number().min(0),
+  total: z.coerce.number().min(0),
+  currency: z.string().min(1),
+  notes: z.string().min(1),
+});
 
-export const hotelSuggestionsSchema = z.array(z.record(z.unknown()));
+export const hotelSuggestionsSchema = z.array(
+  z.object({
+    name: z.string().min(1),
+    type: z.enum(['budget', 'mid-range', 'luxury']),
+    estimatedPricePerNight: z.coerce.number().min(0),
+    currency: z.string().min(1),
+    highlights: z.array(z.string().min(1)),
+  }),
+);
 
 export const packingListSchema = z.array(
   z.object({
@@ -101,3 +118,13 @@ export const packingListSchema = z.array(
     ),
   }),
 );
+
+export const aiTripIdBodySchema = z.object({
+  tripId: objectIdSchema,
+});
+
+export const regenerateDayBodySchema = z.object({
+  tripId: objectIdSchema,
+  dayNumber: z.coerce.number().int().min(1, 'Day number must be at least 1'),
+  instruction: z.string().min(1, 'Instruction is required'),
+});

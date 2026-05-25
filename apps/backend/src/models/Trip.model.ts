@@ -24,6 +24,25 @@ export interface IPackingCategory {
   items: IPackingItem[];
 }
 
+export interface IBudgetEstimate {
+  flights: number;
+  accommodation: number;
+  food: number;
+  activities: number;
+  miscellaneous: number;
+  total: number;
+  currency: string;
+  notes: string;
+}
+
+export interface IHotelSuggestion {
+  name: string;
+  type: 'budget' | 'mid-range' | 'luxury';
+  estimatedPricePerNight: number;
+  currency: string;
+  highlights: string[];
+}
+
 export interface ITrip extends Document {
   userId: Types.ObjectId;
   destination: string;
@@ -31,8 +50,8 @@ export interface ITrip extends Document {
   budgetType: 'low' | 'medium' | 'high';
   interests: string[];
   itinerary: IDayPlan[];
-  budgetEstimate: Record<string, number> | null;
-  hotelSuggestions: Record<string, unknown>[];
+  budgetEstimate: IBudgetEstimate | null;
+  hotelSuggestions: IHotelSuggestion[];
   packingList: IPackingCategory[];
   customNotes?: string;
   createdAt: Date;

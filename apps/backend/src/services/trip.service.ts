@@ -3,7 +3,9 @@ import { z, type ZodSchema } from 'zod';
 import type { PaginationMeta } from '@voyai/types';
 import {
   TripModel,
+  type IBudgetEstimate,
   type IDayPlan,
+  type IHotelSuggestion,
   type ITrip,
   type IPackingCategory,
 } from '../models/Trip.model.js';
@@ -229,7 +231,7 @@ export async function updateItinerary(userId: string, tripId: string, itinerary:
 export async function updateBudget(
   userId: string,
   tripId: string,
-  budget: Record<string, number>,
+  budget: IBudgetEstimate,
 ): Promise<ITrip> {
   const validatedBudget = parseInput(budgetEstimateSchema, budget);
   return setTripField(userId, tripId, { budgetEstimate: validatedBudget });
@@ -238,7 +240,7 @@ export async function updateBudget(
 export async function updateHotels(
   userId: string,
   tripId: string,
-  hotels: Record<string, unknown>[],
+  hotels: IHotelSuggestion[],
 ): Promise<ITrip> {
   const validatedHotels = parseInput(hotelSuggestionsSchema, hotels);
   return setTripField(userId, tripId, { hotelSuggestions: validatedHotels });
