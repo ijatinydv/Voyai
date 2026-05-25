@@ -8,7 +8,7 @@ import rateLimit from 'express-rate-limit';
 
 import { env, corsOrigins, isProduction } from './config/env.js';
 import { errorHandler } from './middleware/error.middleware.js';
-import authRouter from './routes/auth.routes.js';
+import { registerRoutes } from './routes/index.js';
 
 const app: Express = express();
 
@@ -74,7 +74,7 @@ app.get('/health', (_req: Request, res: Response) => {
   });
 });
 
-app.use('/api/auth', authRouter);
+registerRoutes(app);
 
 app.use((_req: Request, res: Response) => {
   res.status(404).json({

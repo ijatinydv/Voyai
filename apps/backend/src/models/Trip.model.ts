@@ -1,25 +1,25 @@
 import mongoose, { type Document, type Model, Schema, type Types } from 'mongoose';
 
-interface IActivity {
+export interface IActivity {
   id: string;
   title: string;
   description: string;
   estimatedCost: number;
 }
 
-interface IDayPlan {
+export interface IDayPlan {
   dayNumber: number;
   activities: IActivity[];
 }
 
-interface IPackingItem {
+export interface IPackingItem {
   id: string;
   name: string;
   essential: boolean;
   quantity: number | null;
 }
 
-interface IPackingCategory {
+export interface IPackingCategory {
   category: string;
   items: IPackingItem[];
 }
