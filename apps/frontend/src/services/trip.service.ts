@@ -80,4 +80,6 @@ export const tripService = {
 
   deleteActivity: (tripId: string, dayNumber: number, activityId: string): Promise<Trip> =>
     del<Trip>(`/api/trips/${tripId}/days/${dayNumber}/activities/${activityId}`),
+
+  generateTrip: (tripId: string): Promise<Trip> => post<Trip>('/api/ai/generate', { tripId }),
 };
