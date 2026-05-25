@@ -5,6 +5,7 @@ import { BudgetCard } from '@/components/budget/BudgetCard';
 import { DayCard } from '@/components/itinerary/DayCard';
 import { RegenerateDayModal } from '@/components/itinerary/RegenerateDayModal';
 import { HotelCard } from '@/components/hotels/HotelCard';
+import { PackingList } from '@/components/packing/PackingList';
 import { Button } from '@/components/ui/Button';
 import { useItinerary } from '@/hooks/useItinerary';
 import { useToast } from '@/hooks/useToast';
@@ -246,29 +247,12 @@ export function TripDetailClient({ initialTrip }: TripDetailClientProps) {
       ) : null}
 
       {activeTab === 'packing' ? (
-        <section className="grid gap-4 md:grid-cols-2">
-          {trip.packingList.length > 0 ? (
-            trip.packingList.map((category) => (
-              <article key={category.category} className="rounded-lg border border-stone-200 bg-white p-5 shadow-sm">
-                <h3 className="text-base font-semibold text-navy-950">{category.category}</h3>
-                <ul className="mt-4 space-y-3">
-                  {category.items.map((item) => (
-                    <li key={item.id} className="flex items-center justify-between gap-3 text-sm text-stone-600">
-                      <span>{item.name}</span>
-                      <span className="text-xs font-medium text-stone-400">
-                        {item.quantity ? `x${item.quantity}` : item.essential ? 'Essential' : ''}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </article>
-            ))
-          ) : (
-            <p className="rounded-lg border border-dashed border-stone-300 bg-white p-8 text-center text-sm text-stone-500 md:col-span-2">
-              Packing list generation is ready for the next implementation prompt.
-            </p>
-          )}
-        </section>
+        <PackingList
+          packingList={trip.packingList}
+          tripId={trip._id}
+          destination={trip.destination}
+          onGenerated={replaceTrip}
+        />
       ) : null}
 
       <RegenerateDayModal
