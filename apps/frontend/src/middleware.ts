@@ -1,16 +1,17 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
 const AUTH_ROUTES = ['/login', '/register'];
+const PROTECTED_PREFIXES = ['/dashboard', '/trips', '/profile'];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const accessToken = request.cookies.get('accessToken')?.value;
   const isAuthenticated = Boolean(accessToken);
-  const isDashboardRoute = pathname.startsWith('/dashboard');
+  const isProtectedRoute = PROTECTED_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
   const isAuthRoute = AUTH_ROUTES.includes(pathname);
   const isHomeRoute = pathname === '/';
 
-  if (isDashboardRoute && !isAuthenticated) {
+  if (isProtectedRoute && !isAuthenticated) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
@@ -22,5 +23,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/', '/login', '/register', '/dashboard/:path*'],
+  matcher: ['/', '/login', '/register', '/dashboard/:path*', '/trips/:path*', '/profile/:path*'],
 };
