@@ -15,6 +15,37 @@ export interface DayPlan {
   activities: TripActivity[];
 }
 
+export interface BudgetEstimate {
+  flights: number;
+  accommodation: number;
+  food: number;
+  activities: number;
+  miscellaneous: number;
+  total: number;
+  currency: string;
+  notes: string;
+}
+
+export interface HotelSuggestion {
+  name: string;
+  type: 'budget' | 'mid-range' | 'luxury';
+  estimatedPricePerNight: number;
+  currency: string;
+  highlights: string[];
+}
+
+export interface PackingItem {
+  id: string;
+  name: string;
+  essential: boolean;
+  quantity: number | null;
+}
+
+export interface PackingCategory {
+  category: string;
+  items: PackingItem[];
+}
+
 export interface Trip {
   _id: string;
   userId: string;
@@ -23,6 +54,9 @@ export interface Trip {
   budgetType: BudgetType;
   interests: string[];
   itinerary: DayPlan[];
+  budgetEstimate: BudgetEstimate | null;
+  hotelSuggestions: HotelSuggestion[];
+  packingList: PackingCategory[];
   customNotes?: string;
   createdAt: string;
   updatedAt: string;
@@ -82,4 +116,9 @@ export const tripService = {
     del<Trip>(`/api/trips/${tripId}/days/${dayNumber}/activities/${activityId}`),
 
   generateTrip: (tripId: string): Promise<Trip> => post<Trip>('/api/ai/generate', { tripId }),
+
+  regenerateDay: (tripId: string, dayNumber: number, instruction: string): Promise<Trip> =>
+    post<Trip>('/api/ai/regenerate-day', { tripId, dayNumber, instruction }),
+
+  refreshHotels: (tripId: string): Promise<Trip> => post<Trip>('/api/ai/suggest-hotels', { tripId }),
 };
