@@ -121,4 +121,6 @@ export const tripService = {
     post<Trip>('/api/ai/regenerate-day', { tripId, dayNumber, instruction }),
 
   refreshHotels: (tripId: string): Promise<Trip> => post<Trip>('/api/ai/suggest-hotels', { tripId }),
+
+  generatePackingList: (tripId: string): Promise<Trip> => post<Trip>('/api/ai/generate-packing-list', { tripId }),
 };
