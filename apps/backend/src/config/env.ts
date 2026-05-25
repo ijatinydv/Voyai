@@ -6,10 +6,8 @@ const envSchema = z.object({
   MONGODB_URI: z.string().min(1, 'MONGODB_URI is required'),
   JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters'),
   JWT_REFRESH_SECRET: z.string().min(32, 'JWT_REFRESH_SECRET must be at least 32 characters'),
-  ANTHROPIC_API_KEY: z.string().startsWith('sk-ant-', {
-    message: 'ANTHROPIC_API_KEY must start with sk-ant-',
-  }),
-  LLM_MODEL: z.string().default('claude-3-5-sonnet-20241022'),
+  GEMINI_API_KEY: z.string().min(1, 'GEMINI_API_KEY is required'),
+  LLM_MODEL: z.string().default('gemini-2.0-flash'),
   CORS_ORIGIN: z.string().min(1, 'CORS_ORIGIN is required'),
 });
 

@@ -2,6 +2,7 @@
   "name": "@voyai/backend",
   "version": "0.0.1",
   "private": true,
+  "type": "module",
   "description": "Voyai Express API server",
   "scripts": {
     "dev": "tsx watch src/server.ts",
@@ -16,6 +17,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.98.0",
+    "@google/genai": "^2.6.0",
     "@voyai/types": "workspace:*",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
