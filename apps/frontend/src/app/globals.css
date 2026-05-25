@@ -127,7 +127,7 @@
     font-family: 'Work Sans', system-ui, sans-serif;
     font-weight: 600;
     line-height: 1.25;
-    letter-spacing: -0.02em;
+    letter-spacing: 0;
     color: var(--text-primary);
   }
 
@@ -135,7 +135,16 @@
   .display {
     font-family: 'Instrument Serif', Georgia, serif;
     font-weight: 400;
-    letter-spacing: -0.03em;
+    letter-spacing: 0;
+  }
+}
+
+@keyframes authGradient {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
   }
 }
 
