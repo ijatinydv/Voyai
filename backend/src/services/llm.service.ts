@@ -9,6 +9,11 @@ const openai = new OpenAI({
   baseURL: env.NOVITA_BASE_URL,
 });
 
+interface CompletionOptions {
+  maxTokens?: number;
+  temperature?: number;
+}
+
 function wait(ms: number): Promise<void> {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
@@ -18,8 +23,11 @@ function wait(ms: number): Promise<void> {
 export async function generateCompletion(
   systemPrompt: string,
   userPrompt: string,
-  maxTokens = 1800,
+  options: number | CompletionOptions = 1800,
 ): Promise<string> {
+  const resolvedOptions: CompletionOptions = typeof options === 'number' ? { maxTokens: options } : options;
+  const maxTokens = resolvedOptions.maxTokens ?? 1800;
+  const temperature = resolvedOptions.temperature ?? 0.35;
   let lastError: unknown;
 
   for (let attempt = 1; attempt <= RETRY_DELAYS_MS.length; attempt += 1) {
@@ -33,7 +41,7 @@ export async function generateCompletion(
           { role: 'user', content: userPrompt },
         ],
         max_tokens: maxTokens,
-        temperature: 0.35,
+        temperature,
       });
 
       const text = response.choices[0]?.message?.content ?? '';
