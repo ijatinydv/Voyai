@@ -69,6 +69,7 @@ export function TripDetailClient({ initialTrip }: TripDetailClientProps) {
     if (!budget) return [];
 
     return [
+      { icon: 'Taxi', label: 'Local transport', amount: budget.localTransport ?? 0 },
       { icon: '✈️', label: 'Flights', amount: budget.flights },
       { icon: '🏨', label: 'Accommodation', amount: budget.accommodation },
       { icon: '🍽️', label: 'Food', amount: budget.food },
@@ -120,6 +121,11 @@ export function TripDetailClient({ initialTrip }: TripDetailClientProps) {
               <span className="rounded-full bg-stone-100 px-3 py-1.5 text-sm font-medium text-stone-700">
                 {trip.numberOfDays} {trip.numberOfDays === 1 ? 'day' : 'days'}
               </span>
+              {trip.departureLocation ? (
+                <span className="rounded-full bg-stone-100 px-3 py-1.5 text-sm font-medium text-stone-700">
+                  From {trip.departureLocation}
+                </span>
+              ) : null}
               <span className={cn('rounded-full px-3 py-1.5 text-sm font-semibold ring-1', budgetBadgeClasses[trip.budgetType])}>
                 {budgetLabels[trip.budgetType]}
               </span>
