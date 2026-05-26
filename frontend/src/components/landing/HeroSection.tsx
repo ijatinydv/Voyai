@@ -32,9 +32,6 @@ export function HeroSection() {
               <PlayIcon /> See how it works
             </Link>
           </div>
-          <div className="mt-7 flex flex-wrap gap-x-4 gap-y-2 text-xs font-semibold uppercase tracking-[0.16em] text-stone-500 dark:text-slate-400">
-            <span>Claude AI</span><span>·</span><span>Next.js</span><span>·</span><span>TypeScript</span><span>·</span><span>Multi-user secure</span>
-          </div>
         </div>
 
         <div data-reveal className="lg:justify-self-end">

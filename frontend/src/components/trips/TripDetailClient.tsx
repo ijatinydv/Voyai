@@ -69,8 +69,7 @@ export function TripDetailClient({ initialTrip }: TripDetailClientProps) {
     if (!budget) return [];
 
     return [
-      { icon: 'Taxi', label: 'Local transport', amount: budget.localTransport ?? 0 },
-      { icon: '✈️', label: 'Flights', amount: budget.flights },
+      { icon: '🚆', label: 'Transportation', amount: budget.flights + (budget.localTransport ?? 0) },
       { icon: '🏨', label: 'Accommodation', amount: budget.accommodation },
       { icon: '🍽️', label: 'Food', amount: budget.food },
       { icon: '🎟️', label: 'Activities', amount: budget.activities },
