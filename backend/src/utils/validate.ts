@@ -33,6 +33,7 @@ export const loginSchema = z.object({
 
 export const tripInputSchema = z.object({
   destination: z.string().min(1, 'Destination is required'),
+  departureLocation: z.string().trim().min(2, 'Departure location is too short').optional().or(z.literal('')),
   numberOfDays: z.number().int().min(1).max(30),
   budgetType: z.enum(['low', 'medium', 'high']),
   interests: z.array(z.string()).optional().default([]),
@@ -85,6 +86,7 @@ export const itinerarySchema = z.array(
 
 export const budgetEstimateSchema = z.object({
   flights: z.coerce.number().min(0),
+  localTransport: z.coerce.number().min(0).optional().default(0),
   accommodation: z.coerce.number().min(0),
   food: z.coerce.number().min(0),
   activities: z.coerce.number().min(0),

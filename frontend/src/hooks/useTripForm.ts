@@ -26,6 +26,7 @@ export type { Interest };
 
 const stepOneSchema = z.object({
   destination: z.string().trim().min(2, 'Enter a destination to continue'),
+  departureLocation: z.string().trim().optional(),
   numberOfDays: z.number().int().min(1).max(30),
 });
 
@@ -61,6 +62,7 @@ export function useTripForm(): UseTripFormResult {
   const form = useForm<TripFormValues>({
     defaultValues: {
       destination: '',
+      departureLocation: '',
       numberOfDays: 5,
       budgetType: '',
       interests: [],
@@ -161,6 +163,7 @@ export function useTripForm(): UseTripFormResult {
     try {
       const createdTrip = await tripService.createTrip({
         destination: parsed.data.destination.trim(),
+        departureLocation: parsed.data.departureLocation?.trim() || undefined,
         numberOfDays: parsed.data.numberOfDays,
         budgetType: parsed.data.budgetType,
         interests: parsed.data.interests.map((interest) => interest.toLowerCase()),

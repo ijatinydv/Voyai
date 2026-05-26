@@ -46,6 +46,7 @@ const tripSchema = new Schema<ITrip>(
       index: true,
     },
     destination: { type: String, required: true },
+    departureLocation: { type: String, trim: true },
     numberOfDays: { type: Number, required: true, min: 1 },
     budgetType: { type: String, enum: ['low', 'medium', 'high'], required: true },
     interests: { type: [String], default: [] },

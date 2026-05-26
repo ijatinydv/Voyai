@@ -76,6 +76,7 @@ export interface IPackingCategory {
 
 export interface IBudgetEstimate {
   flights: number;
+  localTransport: number;
   accommodation: number;
   food: number;
   activities: number;
@@ -96,6 +97,7 @@ export interface IHotelSuggestion {
 export interface ITrip extends Document {
   userId: Types.ObjectId;
   destination: string;
+  departureLocation?: string;
   numberOfDays: number;
   budgetType: 'low' | 'medium' | 'high';
   interests: string[];
@@ -256,6 +258,7 @@ export interface Trip {
 
 export interface TripInput {
   destination: string;
+  departureLocation?: string;
   startDate: string;
   endDate: string;
   numberOfTravelers: number;

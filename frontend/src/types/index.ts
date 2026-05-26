@@ -2,6 +2,7 @@ import type { UseFormReturn } from 'react-hook-form';
 
 export interface TripFormData {
   destination: string;
+  departureLocation?: string;
   startDate?: string;
   endDate?: string;
   numberOfDays?: number;
@@ -57,6 +58,7 @@ export interface TripDayPlan {
 
 export interface TripBudgetEstimate {
   flights: number;
+  localTransport: number;
   accommodation: number;
   food: number;
   activities: number;
@@ -90,6 +92,7 @@ export interface TripApiModel {
   _id: string;
   userId: string;
   destination: string;
+  departureLocation?: string;
   numberOfDays: number;
   budgetType: BudgetType;
   interests: string[];
@@ -104,6 +107,7 @@ export interface TripApiModel {
 
 export interface TripCreateInput {
   destination: string;
+  departureLocation?: string;
   numberOfDays: number;
   budgetType: BudgetType;
   interests: string[];
@@ -236,6 +240,7 @@ export type Interest =
 
 export interface TripFormValues {
   destination: string;
+  departureLocation: string;
   numberOfDays: number;
   budgetType: BudgetType | '';
   interests: Interest[];
@@ -392,6 +397,7 @@ export interface Trip {
 
 export interface TripInput {
   destination: string;
+  departureLocation?: string;
   startDate: string;
   endDate: string;
   numberOfTravelers: number;

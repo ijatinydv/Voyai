@@ -15,6 +15,7 @@ function userIdFrom(req: Request): string {
 function tripInputFrom(trip: ITrip): TripInput {
   return {
     destination: trip.destination,
+    ...(trip.departureLocation ? { departureLocation: trip.departureLocation } : {}),
     numberOfDays: trip.numberOfDays,
     budgetType: trip.budgetType,
     interests: trip.interests,

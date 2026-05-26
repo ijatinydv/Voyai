@@ -68,9 +68,9 @@ function PremiumIcon() {
   );
 }
 
-function PlaneIcon() {
+function PlaneIcon({ className = 'h-9 w-9 animate-[wizardPlane_1.8s_ease-in-out_infinite]' }: { className?: string }) {
   return (
-    <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true" className="h-9 w-9 animate-[wizardPlane_1.8s_ease-in-out_infinite]">
+    <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true" className={className}>
       <path d="M27 5 13.5 18.5M27 5l-7 22-6.5-8.5L5 12 27 5Z" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
@@ -93,6 +93,7 @@ export default function NewTripPage() {
   } = useTripForm();
 
   const destination = form.watch('destination');
+  const departureLocation = form.watch('departureLocation');
   const numberOfDays = form.watch('numberOfDays');
   const budgetType = form.watch('budgetType');
   const selectedInterests = form.watch('interests');
@@ -130,6 +131,21 @@ export default function NewTripPage() {
               {form.formState.errors.destination ? (
                 <span className="mt-2 block text-sm text-red-600">{form.formState.errors.destination.message}</span>
               ) : null}
+            </label>
+
+            <label className="mt-5 block">
+              <span className="text-sm font-medium text-stone-600">Where are you leaving from?</span>
+              <div className="mt-2 flex items-center gap-4 rounded-lg border border-stone-200 bg-stone-50 px-6 py-4 transition-all duration-150 ease-out focus-within:border-emerald-700 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-700/10">
+                <PlaneIcon className="h-6 w-6 shrink-0 text-emerald-800" />
+                <input
+                  {...form.register('departureLocation')}
+                  placeholder="e.g. Mumbai, New York, London"
+                  className="min-w-0 flex-1 bg-transparent text-base font-medium text-navy-950 placeholder:text-stone-400 focus:outline-none"
+                />
+              </div>
+              <span className="mt-2 block text-xs leading-5 text-stone-500">
+                Optional, but it makes flight and transport estimates more realistic.
+              </span>
             </label>
 
             <div className="mt-8">
@@ -191,6 +207,10 @@ export default function NewTripPage() {
                 <p className="display mt-2 text-4xl italic leading-none text-navy-950">{destination || 'Not selected'}</p>
               </div>
               <dl className="mt-5 space-y-4">
+                <div className="flex items-center justify-between gap-4">
+                  <dt className="text-sm text-stone-500">Leaving from</dt>
+                  <dd className="text-sm font-semibold text-navy-950">{departureLocation || 'Not provided'}</dd>
+                </div>
                 <div className="flex items-center justify-between gap-4">
                   <dt className="text-sm text-stone-500">Duration</dt>
                   <dd className="text-sm font-semibold text-navy-950">
