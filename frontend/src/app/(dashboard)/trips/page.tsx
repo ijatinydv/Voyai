@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { DeleteTripModal } from '@/components/trips/DeleteTripModal';
 import { EmptyTrips } from '@/components/trips/EmptyTrips';
 import { TripCard } from '@/components/trips/TripCard';
@@ -13,6 +14,7 @@ type SortMode = 'newest' | 'oldest' | 'destination';
 
 export default function TripsPage() {
   const toast = useToast();
+  const searchParams = useSearchParams();
   const trips = useTripsStore((state) => state.trips);
   const isLoading = useTripsStore((state) => state.isLoading);
   const setTrips = useTripsStore((state) => state.setTrips);
@@ -21,6 +23,7 @@ export default function TripsPage() {
   const [sortMode, setSortMode] = useState<SortMode>('newest');
   const [tripToDelete, setTripToDelete] = useState<Trip | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const searchQuery = searchParams.get('search')?.trim().toLowerCase() ?? '';
 
   useEffect(() => {
     let isMounted = true;
@@ -45,12 +48,30 @@ export default function TripsPage() {
   }, [setLoading, setTrips, toast]);
 
   const sortedTrips = useMemo(() => {
-    return [...trips].sort((a, b) => {
+    const filteredTrips = searchQuery
+      ? trips.filter((trip) => {
+          const searchableText = [
+            trip.destination,
+            trip.departureLocation,
+            trip.customNotes,
+            ...trip.interests,
+            ...trip.itinerary.flatMap((day) => day.activities.map((activity) => `${activity.title} ${activity.description}`)),
+            ...trip.hotelSuggestions.map((hotel) => hotel.name),
+          ]
+            .filter(Boolean)
+            .join(' ')
+            .toLowerCase();
+
+          return searchableText.includes(searchQuery);
+        })
+      : trips;
+
+    return [...filteredTrips].sort((a, b) => {
       if (sortMode === 'oldest') return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
       if (sortMode === 'destination') return a.destination.localeCompare(b.destination);
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
-  }, [sortMode, trips]);
+  }, [searchQuery, sortMode, trips]);
 
   const handleDelete = async () => {
     if (!tripToDelete) return;
@@ -75,7 +96,7 @@ export default function TripsPage() {
           <p className="text-sm font-medium uppercase tracking-[0.22em] text-emerald-800">Trip Library</p>
           <h2 className="display mt-3 text-6xl italic leading-none text-navy-950">My Trips</h2>
           <p className="mt-4 max-w-xl text-sm leading-6 text-stone-600">
-            Compare, reopen, and refine every itinerary you have shaped with Voyai.
+            {searchQuery ? `Showing matches for "${searchParams.get('search')}".` : 'Compare, reopen, and refine every itinerary you have shaped with Voyai.'}
           </p>
         </div>
 

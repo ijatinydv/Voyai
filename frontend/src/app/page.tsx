@@ -6,7 +6,6 @@ import { HeroSection } from '@/components/landing/HeroSection';
 import { HowItWorksSection } from '@/components/landing/HowItWorksSection';
 import { LandingNav } from '@/components/landing/LandingNav';
 import { PackingFeatureSection } from '@/components/landing/PackingFeatureSection';
-import { StackSection } from '@/components/landing/StackSection';
 
 export const metadata: Metadata = {
   title: 'Voyai — AI Travel Planner',
@@ -23,7 +22,6 @@ export default function HomePage() {
         <FeaturesSection />
         <BudgetPreviewSection />
         <PackingFeatureSection />
-        <StackSection />
         <CtaSection />
       </main>
     </>
