@@ -11,6 +11,7 @@ const JSON_ONLY = 'Respond ONLY with valid JSON. No markdown, no explanation, no
 
 const budgetSchema = z.object({
   flights: z.coerce.number().min(0),
+  localTransport: z.coerce.number().min(0).default(0),
   accommodation: z.coerce.number().min(0),
   food: z.coerce.number().min(0),
   activities: z.coerce.number().min(0),
@@ -21,10 +22,27 @@ const budgetSchema = z.object({
 });
 
 function parseBudget(text: string): BudgetEstimate {
-  const cleaned = text.replace(/^```json\n?/, '').replace(/\n?```$/, '').trim();
+  const withoutFence = text
+    .trim()
+    .replace(/^```(?:json)?\s*/i, '')
+    .replace(/\s*```$/i, '')
+    .trim();
+  const jsonStart = withoutFence.indexOf('{');
+  const jsonEnd = withoutFence.lastIndexOf('}');
+  const cleaned = jsonStart >= 0 && jsonEnd >= jsonStart ? withoutFence.slice(jsonStart, jsonEnd + 1) : withoutFence;
 
   try {
-    return budgetSchema.parse(JSON.parse(cleaned));
+    const budget = budgetSchema.parse(JSON.parse(cleaned));
+    return {
+      ...budget,
+      total:
+        budget.flights +
+        budget.localTransport +
+        budget.accommodation +
+        budget.food +
+        budget.activities +
+        budget.miscellaneous,
+    };
   } catch (err) {
     throw new LLMError(err instanceof Error ? err.message : 'Invalid budget JSON response');
   }
@@ -36,15 +54,18 @@ export async function estimateBudget(input: TripInput): Promise<BudgetEstimate> 
   const userPrompt = `${JSON_ONLY}
 
 Destination: ${input.destination}
+Departure location: ${input.departureLocation || 'Not provided'}
 Number of days: ${input.numberOfDays}
 Budget type: ${input.budgetType}
 Interests: ${input.interests.join(', ') || 'General sightseeing'}
 
-Base amounts on realistic destination pricing for the given budgetType. Return estimated total trip costs in USD.
-Format: { "flights": number, "accommodation": number, "food": number, "activities": number, "miscellaneous": number, "total": number, "currency": "USD", "notes": string }`;
+Use realistic USD price ranges for this destination and budget tier. Include local transport between neighborhoods or activities.
+If departure location is not provided, set flights to 0 and explain that airfare is excluded.
+Make total equal flights + localTransport + accommodation + food + activities + miscellaneous.
+Format: { "flights": number, "localTransport": number, "accommodation": number, "food": number, "activities": number, "miscellaneous": number, "total": number, "currency": "USD", "notes": string }`;
 
   for (let attempt = 1; attempt <= 2; attempt += 1) {
-    const text = await generateCompletion(systemPrompt, userPrompt, 2048);
+    const text = await generateCompletion(systemPrompt, userPrompt, 1200);
 
     try {
       return parseBudget(text);

@@ -67,16 +67,18 @@ export async function generateItinerary(input: TripInput): Promise<DayPlan[]> {
   const userPrompt = `${JSON_ONLY}
 
 Destination: ${input.destination}
+Departure location: ${input.departureLocation || 'Not provided'}
 Number of days: ${input.numberOfDays}
 Budget type: ${input.budgetType}
 Interests: ${input.interests.join(', ') || 'General sightseeing'}
 
 Create a practical day-by-day itinerary with specific activities that fit the destination and budget.
+Plan nearby activities together. Include realistic travel time, transport mode, and transport cost from the previous stop inside each activity description.
 Use numeric estimatedCost values only, without currency symbols or text. Use 0 if the cost is unknown.
 Format: { "days": [{ "dayNumber": 1, "activities": [{ "id": "uuid", "title": "Activity name", "description": "Short description", "estimatedCost": 0 }] }] }`;
 
   for (let attempt = 1; attempt <= 2; attempt += 1) {
-    const text = await generateCompletion(systemPrompt, userPrompt);
+    const text = await generateCompletion(systemPrompt, userPrompt, 1800);
 
     try {
       return parseJson(text, itinerarySchema).days;
@@ -100,6 +102,7 @@ export async function regenerateSingleDay(
   const userPrompt = `${JSON_ONLY}
 
 Destination: ${input.destination}
+Departure location: ${input.departureLocation || 'Not provided'}
 Budget type: ${input.budgetType}
 Interests: ${input.interests.join(', ') || 'General sightseeing'}
 Existing itinerary:
@@ -107,11 +110,12 @@ ${itinerarySummary(existingItinerary)}
 
 Regenerate ONLY Day ${dayNumber}. User instruction: ${instruction}
 Return activities that fit the rest of the trip and do not duplicate nearby days.
+Plan nearby activities together. Include realistic travel time, transport mode, and transport cost from the previous stop inside each activity description.
 Use numeric estimatedCost values only, without currency symbols or text. Use 0 if the cost is unknown.
 Format: { "activities": [{ "id": "uuid", "title": "Activity name", "description": "Short description", "estimatedCost": 0 }] }`;
 
   for (let attempt = 1; attempt <= 2; attempt += 1) {
-    const text = await generateCompletion(systemPrompt, userPrompt);
+    const text = await generateCompletion(systemPrompt, userPrompt, 1200);
 
     try {
       return parseJson(text, activitiesSchema).activities;

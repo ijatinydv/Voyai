@@ -18,7 +18,7 @@ function wait(ms: number): Promise<void> {
 export async function generateCompletion(
   systemPrompt: string,
   userPrompt: string,
-  maxTokens = 4096,
+  maxTokens = 1800,
 ): Promise<string> {
   let lastError: unknown;
 
@@ -33,7 +33,7 @@ export async function generateCompletion(
           { role: 'user', content: userPrompt },
         ],
         max_tokens: maxTokens,
-        temperature: 0.7,
+        temperature: 0.35,
       });
 
       const text = response.choices[0]?.message?.content ?? '';

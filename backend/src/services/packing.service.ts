@@ -48,7 +48,14 @@ function activityTitles(itinerary: IDayPlan[]): string {
 }
 
 function parsePackingList(text: string): PackingCategory[] {
-  const cleaned = text.replace(/^```json\n?/, '').replace(/\n?```$/, '').trim();
+  const withoutFence = text
+    .trim()
+    .replace(/^```(?:json)?\s*/i, '')
+    .replace(/\s*```$/i, '')
+    .trim();
+  const jsonStart = withoutFence.indexOf('{');
+  const jsonEnd = withoutFence.lastIndexOf('}');
+  const cleaned = jsonStart >= 0 && jsonEnd >= jsonStart ? withoutFence.slice(jsonStart, jsonEnd + 1) : withoutFence;
 
   try {
     return packingSchema.parse(JSON.parse(cleaned)).categories;
@@ -69,11 +76,12 @@ Budget type: ${trip.budgetType}
 Full activity list: ${activityTitles(trip.itinerary) || 'No activities generated yet'}
 
 Infer what items are needed from the activities. Temple visits require slip-on shoes. Beach days require reef-safe sunscreen. Hiking days require moisture-wicking clothing. Be specific to this trip, not generic.
+Return 4-6 categories and no more than 5 items per category.
 Use exactly these categories: Clothing, Documents, Electronics, Toiletries, Health & Safety, Destination-Specific.
 Format: { "categories": [{ "category": "Clothing", "items": [{ "id": "uuid", "name": "", "essential": true, "quantity": 2 }] }] }`;
 
   for (let attempt = 1; attempt <= 2; attempt += 1) {
-    const text = await generateCompletion(systemPrompt, userPrompt);
+    const text = await generateCompletion(systemPrompt, userPrompt, 1400);
 
     try {
       return parsePackingList(text);

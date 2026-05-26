@@ -23,7 +23,14 @@ const hotelsSchema = z.object({
 });
 
 function parseHotels(text: string): HotelSuggestion[] {
-  const cleaned = text.replace(/^```json\n?/, '').replace(/\n?```$/, '').trim();
+  const withoutFence = text
+    .trim()
+    .replace(/^```(?:json)?\s*/i, '')
+    .replace(/\s*```$/i, '')
+    .trim();
+  const jsonStart = withoutFence.indexOf('{');
+  const jsonEnd = withoutFence.lastIndexOf('}');
+  const cleaned = jsonStart >= 0 && jsonEnd >= jsonStart ? withoutFence.slice(jsonStart, jsonEnd + 1) : withoutFence;
 
   try {
     return hotelsSchema.parse(JSON.parse(cleaned)).hotels;
@@ -40,11 +47,11 @@ export async function suggestHotels(destination: string, budgetType: string): Pr
 Destination: ${destination}
 Budget type: ${budgetType}
 
-Suggest 4-5 realistic hotels or hotel-style areas/options that fit this budget. Use USD estimates.
+Suggest 4-5 realistic hotels or hotel-style areas/options that fit this budget. Use specific USD nightly estimates that match typical current pricing for that destination, not broad placeholder numbers.
 Format: { "hotels": [{ "name": "", "type": "budget"|"mid-range"|"luxury", "estimatedPricePerNight": number, "currency": "USD", "highlights": [""] }] }`;
 
   for (let attempt = 1; attempt <= 2; attempt += 1) {
-    const text = await generateCompletion(systemPrompt, userPrompt, 2048);
+    const text = await generateCompletion(systemPrompt, userPrompt, 1200);
 
     try {
       return parseHotels(text);
