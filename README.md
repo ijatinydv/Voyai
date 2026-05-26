@@ -1,42 +1,57 @@
-# Voyai ✈️ — AI Travel Planner
+# Voyai - AI Travel Planner
 
-> Plan smarter trips with AI-powered itineraries, budget estimates, and hotel suggestions.
+Plan smarter trips with AI-powered itineraries, budget estimates, hotel suggestions, and packing lists.
 
 ## Stack
 
 | Layer | Technology |
 |---|---|
-| **Monorepo** | pnpm Workspaces + Turborepo |
-| **Frontend** | Next.js 14 (App Router) · TypeScript · Tailwind CSS |
-| **Backend** | Express.js · TypeScript · MongoDB (Mongoose) |
-| **AI** | Anthropic Claude (via `@anthropic-ai/sdk`) |
-| **Shared Types** | `@voyai/types` internal package |
-| **Auth** | JWT (access + refresh token pattern) |
-| **Code Quality** | ESLint · Prettier · TypeScript strict mode |
+| Frontend | Next.js 14 App Router, TypeScript, Tailwind CSS |
+| Backend | Express, TypeScript, MongoDB with Mongoose |
+| AI | Anthropic SDK and Google GenAI SDK |
+| Auth | JWT access tokens and refresh-token cookies |
+| Package Manager | npm, with separate installs per app |
 
 ## Getting Started
 
+Install and run each app from its own folder:
+
 ```bash
-# Install dependencies
-pnpm install
-
-# Start all apps in dev mode
-pnpm dev
-
-# Build all apps
-pnpm build
+cd backend
+npm install
+npm run dev
 ```
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The backend expects MongoDB to be available from `backend/.env`, and the default development API URL is `http://localhost:5000/api`.
 
 ## Project Structure
 
-```
+```text
 ai-travel-planner/
-├── apps/
-│   ├── frontend/          # Next.js 14 App Router
-│   └── backend/           # Express API server
-├── packages/
-│   └── types/             # Shared TypeScript interfaces (@voyai/types)
-├── package.json
-├── pnpm-workspace.yaml
-└── turbo.json
+├── frontend/
+│   ├── src/
+│   │   ├── app/
+│   │   ├── components/
+│   │   └── types/
+│   │       └── index.ts
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── tsconfig.json
+│   └── .env.local
+├── backend/
+│   ├── src/
+│   │   └── types/
+│   │       └── index.ts
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── tsconfig.json
+│   └── .env
+├── .gitignore
+└── README.md
 ```
