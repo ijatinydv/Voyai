@@ -3,11 +3,11 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { cn } from '@/utils/cn';
+import { initializeTheme, toggleTheme as toggleSavedTheme } from '@/utils/theme';
 
 const links = [
   { href: '#features', label: 'Features' },
   { href: '#how-it-works', label: 'How it works' },
-  { href: '#stack', label: 'Stack' },
 ];
 
 function CompassIcon({ className }: { className?: string }) {
@@ -48,6 +48,7 @@ export function LandingNav() {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
+    initializeTheme();
     const elements = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'));
     const observer = new IntersectionObserver(
       (entries) => {
@@ -66,7 +67,7 @@ export function LandingNav() {
   }, []);
 
   const toggleTheme = () => {
-    document.documentElement.classList.toggle('dark');
+    toggleSavedTheme();
   };
 
   return (

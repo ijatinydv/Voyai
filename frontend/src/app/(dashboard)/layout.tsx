@@ -11,7 +11,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <div className="min-h-screen bg-stone-50 text-navy-950">
+    <div className="min-h-screen bg-stone-50 text-navy-950 dark:bg-slate-950 dark:text-white">
       <Sidebar isCollapsed={isCollapsed} onToggle={() => setIsCollapsed((value) => !value)} />
       <div className={cn('min-h-screen transition-[padding] duration-200 ease-out md:pl-60', isCollapsed && 'md:pl-20')}>
         <TopBar />

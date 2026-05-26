@@ -90,13 +90,13 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
   return (
     <aside
       className={cn(
-        'fixed inset-y-0 left-0 z-40 hidden border-r border-stone-200 bg-white/90 backdrop-blur-xl transition-[width] duration-200 ease-out md:flex md:flex-col',
+        'fixed inset-y-0 left-0 z-40 hidden border-r border-stone-200 bg-white/90 backdrop-blur-xl transition-[width] duration-200 ease-out dark:border-slate-800 dark:bg-slate-950/90 md:flex md:flex-col',
         isCollapsed ? 'w-20' : 'w-60',
       )}
     >
       <div className="flex h-16 items-center justify-between px-4">
-        <Link href="/dashboard" className="flex min-w-0 items-center gap-3 text-navy-950">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-stone-200 bg-sand-50 text-emerald-800">
+        <Link href="/dashboard" className="flex min-w-0 items-center gap-3 text-navy-950 dark:text-white">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-stone-200 bg-sand-50 text-emerald-800 dark:border-slate-700 dark:bg-slate-900 dark:text-emerald-300">
             <GlobeIcon className="h-5 w-5" />
           </span>
           <span className={cn('display text-3xl italic leading-none transition-opacity duration-150', isCollapsed && 'sr-only opacity-0')}>
@@ -109,7 +109,7 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
           aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           onClick={onToggle}
           className={cn(
-            'hidden h-8 w-8 items-center justify-center rounded-lg border border-stone-200 text-stone-500 transition-all duration-150 ease-out hover:border-stone-300 hover:bg-stone-50 hover:text-navy-900 md:flex',
+            'hidden h-8 w-8 items-center justify-center rounded-lg border border-stone-200 text-stone-500 transition-all duration-150 ease-out hover:border-stone-300 hover:bg-stone-50 hover:text-navy-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white md:flex',
             isCollapsed && 'rotate-180',
           )}
         >
@@ -127,9 +127,9 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
               key={item.href}
               href={item.href}
               className={cn(
-                'group relative flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium text-stone-600 transition-all duration-150 ease-out hover:bg-stone-50 hover:text-navy-950',
+                'group relative flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium text-stone-600 transition-all duration-150 ease-out hover:bg-stone-50 hover:text-navy-950 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white',
                 isCollapsed && 'justify-center px-0',
-                isActive && 'bg-emerald-50/50 text-navy-950',
+                isActive && 'bg-emerald-50/50 text-navy-950 dark:bg-emerald-950/30 dark:text-white',
               )}
             >
               <span
@@ -145,13 +145,13 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
         })}
       </nav>
 
-      <div className="border-t border-stone-200 p-3">
-        <div className={cn('flex items-center gap-3 rounded-lg bg-stone-50 p-3', isCollapsed && 'justify-center p-2')}>
+      <div className="border-t border-stone-200 p-3 dark:border-slate-800">
+        <div className={cn('flex items-center gap-3 rounded-lg bg-stone-50 p-3 dark:bg-slate-900', isCollapsed && 'justify-center p-2')}>
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-navy-950 text-sm font-semibold text-white">
             {initials}
           </div>
           <div className={cn('min-w-0 flex-1', isCollapsed && 'sr-only')}>
-            <p className="truncate text-sm font-semibold text-navy-950">{user?.name ?? 'Voyai Traveler'}</p>
+            <p className="truncate text-sm font-semibold text-navy-950 dark:text-white">{user?.name ?? 'Voyai Traveler'}</p>
             <p className="truncate text-xs text-stone-500">{user?.email ?? 'traveler@voyai.app'}</p>
           </div>
         </div>

@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { type FormEvent, useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { initializeTheme, toggleTheme } from '@/utils/theme';
 
 const pageTitles: Record<string, string> = {
   '/dashboard': 'Dashboard',
@@ -53,11 +54,23 @@ export function TopBar() {
   const router = useRouter();
   const { user, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const initials = useMemo(() => getInitials(user?.name, user?.email), [user?.email, user?.name]);
   const title = pageTitles[pathname] ?? (pathname.startsWith('/trips') ? 'My Trips' : 'Dashboard');
 
+  useEffect(() => {
+    initializeTheme();
+  }, []);
+
   const handleThemeToggle = () => {
-    document.documentElement.classList.toggle('dark');
+    toggleTheme();
+  };
+
+  const handleSearch = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const query = searchQuery.trim();
+    router.push(query ? `/trips?search=${encodeURIComponent(query)}` : '/trips');
   };
 
   const handleLogout = async () => {
@@ -67,17 +80,22 @@ export function TopBar() {
   };
 
   return (
-    <header className="sticky top-0 z-30 border-b border-stone-200 bg-stone-50/85 backdrop-blur-xl">
+    <header className="sticky top-0 z-30 border-b border-stone-200 bg-stone-50/85 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/85">
       <div className="flex h-16 items-center gap-4 px-4 sm:px-6 lg:px-8">
         <div className="min-w-0 flex-1">
           <p className="text-xs font-medium uppercase tracking-[0.2em] text-stone-400">Voyai</p>
-          <h1 className="truncate text-lg font-semibold text-navy-950">{title}</h1>
+          <h1 className="truncate text-lg font-semibold text-navy-950 dark:text-white">{title}</h1>
         </div>
 
-        <div className="hidden h-10 w-full max-w-xs items-center gap-2 rounded-lg border border-stone-200 bg-white px-3 text-sm text-stone-400 shadow-sm lg:flex">
+        <form onSubmit={handleSearch} className="hidden h-10 w-full max-w-xs items-center gap-2 rounded-lg border border-stone-200 bg-white px-3 text-sm text-stone-400 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 lg:flex">
           <SearchIcon className="h-4 w-4" />
-          <span>Search trips, places, notes</span>
-        </div>
+          <input
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            placeholder="Search trips, places, notes"
+            className="min-w-0 flex-1 bg-transparent text-sm text-navy-950 placeholder:text-stone-400 focus:outline-none dark:text-white dark:placeholder:text-slate-500"
+          />
+        </form>
 
         <Link
           href="/trips/new"
@@ -90,7 +108,7 @@ export function TopBar() {
           type="button"
           aria-label="Toggle theme"
           onClick={handleThemeToggle}
-          className="flex h-10 w-10 items-center justify-center rounded-lg border border-stone-200 bg-white text-stone-600 shadow-sm transition-all duration-150 ease-out hover:border-stone-300 hover:text-navy-950"
+          className="flex h-10 w-10 items-center justify-center rounded-lg border border-stone-200 bg-white text-stone-600 shadow-sm transition-all duration-150 ease-out hover:border-stone-300 hover:text-navy-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:text-white"
         >
           <ThemeIcon className="h-4 w-4" />
         </button>
@@ -98,11 +116,21 @@ export function TopBar() {
         <button
           type="button"
           aria-label="Notifications"
-          className="relative flex h-10 w-10 items-center justify-center rounded-lg border border-stone-200 bg-white text-stone-600 shadow-sm transition-all duration-150 ease-out hover:border-stone-300 hover:text-navy-950"
+          onClick={() => setIsNotificationsOpen((value) => !value)}
+          className="relative flex h-10 w-10 items-center justify-center rounded-lg border border-stone-200 bg-white text-stone-600 shadow-sm transition-all duration-150 ease-out hover:border-stone-300 hover:text-navy-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:text-white"
         >
           <BellIcon className="h-4 w-4" />
           <span className="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-emerald-600" />
         </button>
+
+        {isNotificationsOpen ? (
+          <div className="absolute right-20 top-14 w-72 rounded-lg border border-stone-200 bg-white p-4 shadow-xl shadow-navy-950/10 dark:border-slate-700 dark:bg-slate-900">
+            <p className="text-sm font-semibold text-navy-950 dark:text-white">Notifications</p>
+            <p className="mt-2 text-sm leading-6 text-stone-500 dark:text-slate-400">
+              No new alerts right now. Trip generation updates will appear here.
+            </p>
+          </div>
+        ) : null}
 
         <div className="relative">
           <button
