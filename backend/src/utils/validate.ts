@@ -12,10 +12,9 @@ export function validate(schema: ZodSchema, target: 'body' | 'query' | 'params')
       return;
     }
 
-    // Overwrite the parsed target with the coerced/defaulted Zod output
+    // Express 5 exposes req.query as getter-only, so keep query validation read-only.
     if (target === 'body') req.body = result.data as typeof req.body;
-    else if (target === 'query') req.query = result.data as typeof req.query;
-    else req.params = result.data as typeof req.params;
+    else if (target === 'params') req.params = result.data as typeof req.params;
 
     next();
   };
