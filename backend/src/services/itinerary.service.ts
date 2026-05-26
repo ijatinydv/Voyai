@@ -74,7 +74,7 @@ Interests: ${input.interests.join(', ') || 'General sightseeing'}
 
 Create a practical day-by-day itinerary with specific activities that fit the destination and budget.
 Plan nearby activities together. Include realistic travel time, transport mode, and transport cost from the previous stop inside each activity description.
-Use numeric estimatedCost values only, without currency symbols or text. Use 0 if the cost is unknown.
+Use numeric estimatedCost values only, without currency symbols or text. estimatedCost must mean only the activity ticket, entry fee, tour fee, or experience fee. Do not include hotels, food, intercity travel, local transport, or shopping. Use 0 for free public sights and keep each cost realistic for the selected budget tier.
 Format: { "days": [{ "dayNumber": 1, "activities": [{ "id": "uuid", "title": "Activity name", "description": "Short description", "estimatedCost": 0 }] }] }`;
 
   for (let attempt = 1; attempt <= 2; attempt += 1) {
@@ -111,7 +111,7 @@ ${itinerarySummary(existingItinerary)}
 Regenerate ONLY Day ${dayNumber}. User instruction: ${instruction}
 Return activities that fit the rest of the trip and do not duplicate nearby days.
 Plan nearby activities together. Include realistic travel time, transport mode, and transport cost from the previous stop inside each activity description.
-Use numeric estimatedCost values only, without currency symbols or text. Use 0 if the cost is unknown.
+Use numeric estimatedCost values only, without currency symbols or text. estimatedCost must mean only the activity ticket, entry fee, tour fee, or experience fee. Do not include hotels, food, intercity travel, local transport, or shopping. Use 0 for free public sights and keep each cost realistic for the selected budget tier.
 Format: { "activities": [{ "id": "uuid", "title": "Activity name", "description": "Short description", "estimatedCost": 0 }] }`;
 
   for (let attempt = 1; attempt <= 2; attempt += 1) {

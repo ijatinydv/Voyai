@@ -34,6 +34,50 @@ function sendTrip(res: Response, trip: ITrip, message: string): void {
   res.json(response);
 }
 
+function normalizeItineraryCosts(itinerary: IDayPlan[], activityBudget: number): IDayPlan[] {
+  const targetTotal = Math.max(0, Math.round(Number.isFinite(activityBudget) ? activityBudget : 0));
+  const activityCount = itinerary.reduce((total, day) => total + day.activities.length, 0);
+
+  if (activityCount === 0) return itinerary;
+
+  const currentTotal = itinerary.reduce(
+    (total, day) =>
+      total +
+      day.activities.reduce((dayTotal, activity) => {
+        const cost = Number.isFinite(activity.estimatedCost) ? activity.estimatedCost : 0;
+        return dayTotal + Math.max(0, cost);
+      }, 0),
+    0,
+  );
+
+  let activityIndex = 0;
+  let assignedTotal = 0;
+
+  return itinerary.map((day) => ({
+    ...day,
+    activities: day.activities.map((activity) => {
+      activityIndex += 1;
+      let estimatedCost = 0;
+
+      if (targetTotal > 0) {
+        if (currentTotal > 0) {
+          estimatedCost =
+            activityIndex === activityCount
+              ? targetTotal - assignedTotal
+              : Math.round((Math.max(0, activity.estimatedCost) / currentTotal) * targetTotal);
+        } else {
+          const baseCost = Math.floor(targetTotal / activityCount);
+          const remainder = targetTotal % activityCount;
+          estimatedCost = baseCost + (activityIndex <= remainder ? 1 : 0);
+        }
+      }
+
+      assignedTotal += estimatedCost;
+      return { ...activity, estimatedCost };
+    }),
+  }));
+}
+
 export async function generateFullTrip(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const userId = userIdFrom(req);
@@ -45,9 +89,10 @@ export async function generateFullTrip(req: Request, res: Response, next: NextFu
       estimateBudget(input),
       suggestHotelOptions(input.destination, input.budgetType),
     ]);
+    const normalizedItinerary = normalizeItineraryCosts(itinerary, budget.activities);
 
     await Promise.all([
-      tripService.updateItinerary(userId, req.body.tripId as string, itinerary),
+      tripService.updateItinerary(userId, req.body.tripId as string, normalizedItinerary),
       tripService.updateBudget(userId, req.body.tripId as string, budget),
       tripService.updateHotels(userId, req.body.tripId as string, hotels),
     ]);

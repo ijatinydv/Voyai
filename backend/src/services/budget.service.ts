@@ -59,9 +59,10 @@ Number of days: ${input.numberOfDays}
 Budget type: ${input.budgetType}
 Interests: ${input.interests.join(', ') || 'General sightseeing'}
 
-Use realistic USD price ranges for this destination and budget tier. Include local transport between neighborhoods or activities.
+Use realistic USD price ranges for this destination and budget tier. Keep every category grounded in common current travel pricing, not inflated placeholder numbers.
 Use the flights field for the main origin-to-destination transportation cost, whether that route is best by flight, train, bus, taxi, ferry, or another transport mode.
 If departure location is not provided, set flights to 0 and explain that origin-to-destination transportation is excluded.
+The activities field must cover only itinerary activity tickets, entry fees, tour fees, and experience fees. Do not include hotels, meals, local transport, shopping, or miscellaneous purchases in activities.
 Make total equal flights + localTransport + accommodation + food + activities + miscellaneous.
 Format: { "flights": number, "localTransport": number, "accommodation": number, "food": number, "activities": number, "miscellaneous": number, "total": number, "currency": "USD", "notes": string }`;
 
