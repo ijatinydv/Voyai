@@ -44,6 +44,26 @@ export interface ToastMessage {
 
 export type BudgetType = 'low' | 'medium' | 'high';
 
+export interface PlaceSuggestion {
+  id: string;
+  label: string;
+  city?: string;
+  country?: string;
+}
+
+export interface GeoapifyAutocompleteFeature {
+  properties?: {
+    place_id?: string;
+    formatted?: string;
+    city?: string;
+    country?: string;
+  };
+}
+
+export interface GeoapifyAutocompleteResponse {
+  features?: GeoapifyAutocompleteFeature[];
+}
+
 export interface TripActivity {
   id: string;
   title: string;

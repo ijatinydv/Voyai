@@ -1,12 +1,15 @@
 'use client';
 
+import { useState } from 'react';
 import { BudgetCard } from '@/components/ui/BudgetCard';
 import { InterestPill } from '@/components/ui/InterestPill';
 import { Stepper } from '@/components/ui/Stepper';
 import { StepIndicator } from '@/components/trips/StepIndicator';
 import { StepNavigation } from '@/components/trips/StepNavigation';
+import { usePlaceAutocomplete } from '@/hooks/usePlaceAutocomplete';
 import { interests, type Interest, useTripForm } from '@/hooks/useTripForm';
 import type { BudgetType } from '@/services/trip.service';
+import type { PlaceSuggestion } from '@/types';
 import { cn } from '@/utils/cn';
 
 const budgetOptions: Array<{
@@ -76,6 +79,37 @@ function PlaneIcon({ className = 'h-9 w-9 animate-[wizardPlane_1.8s_ease-in-out_
   );
 }
 
+function PlaceSuggestions({
+  isLoading,
+  suggestions,
+  onSelect,
+}: {
+  isLoading: boolean;
+  suggestions: PlaceSuggestion[];
+  onSelect: (place: PlaceSuggestion) => void;
+}) {
+  if (isLoading) {
+    return <p className="mt-2 text-xs font-medium text-stone-500">Searching places...</p>;
+  }
+
+  if (suggestions.length === 0) return null;
+
+  return (
+    <div className="mt-2 overflow-hidden rounded-lg border border-stone-200 bg-white shadow-lg shadow-navy-950/5">
+      {suggestions.map((place) => (
+        <button
+          key={place.id}
+          type="button"
+          onClick={() => onSelect(place)}
+          className="block w-full px-4 py-3 text-left text-sm font-medium text-navy-950 transition-colors duration-150 ease-out hover:bg-emerald-50"
+        >
+          {place.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export default function NewTripPage() {
   const {
     form,
@@ -98,6 +132,17 @@ export default function NewTripPage() {
   const budgetType = form.watch('budgetType');
   const selectedInterests = form.watch('interests');
   const selectedBudget = budgetOptions.find((budget) => budget.value === budgetType);
+  const [suppressedSuggestions, setSuppressedSuggestions] = useState<Partial<Record<'destination' | 'departureLocation', string>>>({});
+  const destinationAutocomplete = usePlaceAutocomplete(destination);
+  const departureAutocomplete = usePlaceAutocomplete(departureLocation);
+  const shouldShowDestinationSuggestions = destination.trim() !== suppressedSuggestions.destination;
+  const shouldShowDepartureSuggestions = departureLocation.trim() !== suppressedSuggestions.departureLocation;
+
+  const selectPlace = (field: 'destination' | 'departureLocation', place: PlaceSuggestion) => {
+    form.setValue(field, place.label, { shouldDirty: true, shouldValidate: true });
+    form.clearErrors(field);
+    setSuppressedSuggestions((current) => ({ ...current, [field]: place.label }));
+  };
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -132,6 +177,11 @@ export default function NewTripPage() {
                 <span className="mt-2 block text-sm text-red-600">{form.formState.errors.destination.message}</span>
               ) : null}
             </label>
+            <PlaceSuggestions
+              isLoading={shouldShowDestinationSuggestions && destinationAutocomplete.isLoading}
+              suggestions={shouldShowDestinationSuggestions ? destinationAutocomplete.suggestions : []}
+              onSelect={(place) => selectPlace('destination', place)}
+            />
 
             <label className="mt-5 block">
               <span className="text-sm font-medium text-stone-600">Where are you leaving from?</span>
@@ -147,6 +197,11 @@ export default function NewTripPage() {
                 Optional, but it makes flight and transport estimates more realistic.
               </span>
             </label>
+            <PlaceSuggestions
+              isLoading={shouldShowDepartureSuggestions && departureAutocomplete.isLoading}
+              suggestions={shouldShowDepartureSuggestions ? departureAutocomplete.suggestions : []}
+              onSelect={(place) => selectPlace('departureLocation', place)}
+            />
 
             <div className="mt-8">
               <Stepper value={numberOfDays} min={1} max={30} onChange={setNumberOfDays} />
