@@ -6,8 +6,9 @@ const envSchema = z.object({
   MONGODB_URI: z.string().min(1, 'MONGODB_URI is required'),
   JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters'),
   JWT_REFRESH_SECRET: z.string().min(32, 'JWT_REFRESH_SECRET must be at least 32 characters'),
-  GEMINI_API_KEY: z.string().min(1, 'GEMINI_API_KEY is required'),
-  LLM_MODEL: z.string().default('gemini-2.0-flash'),
+  NOVITA_API_KEY: z.string().min(1, 'NOVITA_API_KEY is required'),
+  NOVITA_BASE_URL: z.string().url().default('https://api.novita.ai/openai'),
+  LLM_MODEL: z.string().default('deepseek/deepseek-v4-flash'),
   CORS_ORIGIN: z.string().min(1, 'CORS_ORIGIN is required'),
 });
 
