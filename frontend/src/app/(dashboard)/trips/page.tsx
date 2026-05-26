@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { DeleteTripModal } from '@/components/trips/DeleteTripModal';
 import { EmptyTrips } from '@/components/trips/EmptyTrips';
@@ -12,7 +12,7 @@ import { useTripsStore } from '@/store/trips.store';
 
 type SortMode = 'newest' | 'oldest' | 'destination';
 
-export default function TripsPage() {
+function TripsPageContent() {
   const toast = useToast();
   const searchParams = useSearchParams();
   const trips = useTripsStore((state) => state.trips);
@@ -137,5 +137,13 @@ export default function TripsPage() {
         onConfirm={handleDelete}
       />
     </div>
+  );
+}
+
+export default function TripsPage() {
+  return (
+    <Suspense fallback={<div className="skeleton h-40 w-full" />}>
+      <TripsPageContent />
+    </Suspense>
   );
 }
