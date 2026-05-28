@@ -81,7 +81,7 @@ export default function DashboardPage() {
       <section className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
         <div>
           <p className="text-sm font-medium uppercase tracking-[0.22em] text-emerald-800">Today in Voyai</p>
-          <h2 className="display mt-3 text-6xl italic leading-none text-navy-950">
+          <h2 className="display mt-3 text-6xl italic leading-none text-navy-950 dark:text-white">
             {getGreeting()}, {user?.name?.split(' ')[0] ?? 'Traveler'}
           </h2>
           <p className="mt-4 max-w-2xl text-sm leading-6 text-stone-600">
