@@ -1,5 +1,7 @@
 # Voyai - AI Travel Planner
 
+**Live:** [voyai-flax.vercel.app](https://voyai-flax.vercel.app/)
+
 ## Project Overview
 
 Voyai is a full-stack AI travel planner. Users enter a destination, trip length, budget, and interests, then get a saved trip with an itinerary, budget estimate, hotel suggestions, and packing list.
@@ -26,7 +28,7 @@ The main idea is to make AI trip output usable after generation: trips are store
 cd backend
 cp .env.example .env
 npm install
-npm start
+npm run dev
 ```
 
 Use `backend/.env.example` as the reference for required variables.
@@ -123,7 +125,7 @@ It also works like a real packing tool: items are grouped by category, users can
 
 ## Key Design Decisions and Trade-Offs
 
-- I kept the frontend and backend separate so auth, database access, and AI calls stay on the server. The trade-off is a little more deployment/CORS setup.
+- I kept a separate Express API even though Next.js can handle API routes. This lets the backend scale independently, avoids strict serverless timeout pain for longer LLM requests, and keeps the API ready for future clients like a React Native mobile app.
 - Trips are saved after generation instead of being treated as one-time AI output. That makes the app faster to revisit and edit, but prices and suggestions can become stale over time.
 - AI responses are forced through JSON schemas before being stored. This adds extra code, but it keeps broken model output from crashing the UI.
 - The packing list is rule-based instead of fully AI-generated. That makes it fast, predictable, and cheap, but less imaginative than another model call.

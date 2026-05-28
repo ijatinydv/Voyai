@@ -10,7 +10,7 @@ export function CtaSection() {
           <Link href="/register" className="inline-flex h-12 items-center justify-center rounded-full bg-emerald-700 px-6 text-base font-semibold text-white transition-all duration-150 ease-out hover:-translate-y-0.5 hover:bg-emerald-800">
             Start planning free →
           </Link>
-          <Link href="https://github.com" className="inline-flex h-12 items-center justify-center rounded-full border border-stone-300 px-6 text-base font-semibold text-navy-950 transition-all duration-150 ease-out hover:bg-white dark:border-white/20 dark:text-white dark:hover:bg-white/10">
+          <Link href="https://github.com/ijatinydv/Voyai" className="inline-flex h-12 items-center justify-center rounded-full border border-stone-300 px-6 text-base font-semibold text-navy-950 transition-all duration-150 ease-out hover:bg-white dark:border-white/20 dark:text-white dark:hover:bg-white/10">
             View on GitHub
           </Link>
         </div>
