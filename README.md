@@ -2,36 +2,23 @@
 
 ## Project Overview
 
-Voyai is a full-stack travel planner that turns a few trip details into a usable itinerary. A user signs up, creates a trip, chooses a destination, trip length, budget tier, and interests, then Voyai generates a day-by-day plan with activity costs, a budget breakdown, hotel suggestions, and a packing checklist.
+Voyai is a full-stack AI travel planner. Users enter a destination, trip length, budget, and interests, then get a saved trip with an itinerary, budget estimate, hotel suggestions, and packing list.
 
-The project is not just a prompt box around an LLM. The app saves trips per user, lets travelers edit activities after generation, regenerate a single day with custom instructions, refresh hotels or budget estimates, and use a practical packing list while preparing for the trip.
+The main idea is to make AI trip output usable after generation: trips are stored per user, can be edited, and include practical planning tools instead of only a one-time text response.
 
 ## Tech Stack
 
-| Layer | Tech |
+| Area | Stack |
 | --- | --- |
-| Frontend | Next.js 14, TypeScript |
-| Styling | Tailwind CSS |
-| Client state | Zustand |
-| Forms and validation | React Hook Form, Zod |
-| API client | Axios with auth retry/interceptor flow |
-| Backend | Node.js , Express , TypeScript |
-| Database | MongoDB |
-| Auth | JWT access tokens, refresh-token cookie, bcrypt password hashing |
-| AI provider | OpenAI SDK pointed at Novita's OpenAI-compatible API |
-| Places autocomplete | Geoapify browser API |
-
-I kept the frontend and backend as separate apps because it makes the API boundary clear and keeps the AI/database work off the browser. Next.js handles the user experience and route protection, while Express owns authentication, persistence, rate limiting, validation, and AI orchestration. The OpenAI SDK is used with a configurable `NOVITA_BASE_URL`, so the model provider can be swapped without rewriting the travel services.
+| Frontend | Next.js 14, React, TypeScript, Tailwind CSS |
+| Backend | Node.js, Express, TypeScript |
+| Database | MongoDB, Mongoose |
+| Auth | JWT, HTTP-only refresh cookie, bcrypt |
+| AI | Novita OpenAI-compatible API, OpenAI SDK |
+| State & Forms | Zustand, React Hook Form, Zod |
+| External APIs | Geoapify Places Autocomplete |
 
 ## Setup Instructions
-
-### Prerequisites
-
-- Node.js 20.x
-- npm
-- MongoDB connection string, either local MongoDB or MongoDB Atlas
-- Novita API key
-- Optional: Geoapify API key for destination autocomplete
 
 ### Local Backend
 
@@ -42,19 +29,7 @@ npm install
 npm start
 ```
 
-Fill `backend/.env` with:
-
-```env
-PORT=5000
-NODE_ENV=development
-MONGODB_URI=mongodb://localhost:27017/voyai
-JWT_SECRET=replace_with_a_long_random_secret
-JWT_REFRESH_SECRET=replace_with_a_different_long_random_secret
-NOVITA_API_KEY=your_novita_key
-NOVITA_BASE_URL=https://api.novita.ai/openai
-LLM_MODEL=deepseek/deepseek-v4-flash
-CORS_ORIGIN=http://localhost:3000
-```
+Use `backend/.env.example` as the reference for required variables.
 
 The backend runs at `http://localhost:5000`, with API routes under `http://localhost:5000/api`. A quick health check is available at `http://localhost:5000/health`.
 
@@ -67,101 +42,95 @@ npm install
 npm run dev
 ```
 
-Fill `frontend/.env.local` with:
-
-```env
-NEXT_PUBLIC_API_URL=http://localhost:5000/api
-NEXT_PUBLIC_GEOAPIFY_API_KEY=your_geoapify_key_if_you_want_autocomplete
-```
+Use `frontend/.env.local.example` as the reference for required variables.
 
 The frontend runs at `http://localhost:3000`.
 
 ## High-Level Architecture
 
-```text
-User browser
-  |
-  | Next.js pages, forms, Zustand stores
-  v
-Frontend services and Axios client
-  |
-  | Bearer access token + refresh cookie support
-  v
-Express API
-  |
-  |-- Auth routes: register, login, refresh, logout, me
-  |-- Trip routes: CRUD, activity edits, pagination
-  |-- AI routes: generate trip, regenerate day, hotels, packing list
-  |
-  | MongoDB via Mongoose
-  v
-Users and Trips collections
+```mermaid
+flowchart TD
+  User["User Browser"]
 
-Express AI services
-  |
-  |-- Itinerary service
-  |-- Budget service
-  |-- Hotel service
-  |-- Packing service
-  v
-Novita/OpenAI-compatible model API
+  subgraph Frontend["Frontend - Next.js"]
+    Pages["App Router Pages"]
+    UI["React Components"]
+    State["Zustand Stores"]
+    APIClient["Axios API Client"]
+    Geo["Geoapify Places API"]
+  end
+
+  subgraph Backend["Backend - Express API"]
+    Routes["Routes"]
+    Auth["Auth Middleware"]
+    Controllers["Controllers"]
+    Services["Trip/Auth Services"]
+  end
+
+  subgraph AI["AI Planning Layer"]
+    Itinerary["Itinerary Agent"]
+    Budget["Budget Agent"]
+    Hotels["Hotel Agent"]
+    Packing["Packing Generator"]
+  end
+
+  DB[("MongoDB")]
+  LLM["Novita / OpenAI-compatible LLM"]
+
+  User --> Pages
+  Pages --> UI
+  UI --> State
+  UI --> APIClient
+  APIClient --> Routes
+  Routes --> Auth
+  Auth --> Controllers
+  Controllers --> Services
+  Services --> DB
+  Services --> AI
+  AI --> LLM
+  UI --> Geo
 ```
 
-The frontend is organized around route groups: public landing/auth routes and protected dashboard routes. Trip creation is a guided form. Once a trip exists, the backend stores an initial empty itinerary and then the AI generation endpoint fills in itinerary, budget, and hotel data.
-
-The backend is layered as routes -> controllers -> services -> models. Controllers stay thin, services handle validation and data rules, and Mongoose models define the stored user/trip shape.
+The frontend handles screens, forms, client state, and API calls. The Express backend owns authentication, validation, trip CRUD, AI orchestration, and persistence. MongoDB stores users and trips, while external APIs are used only where needed: Novita for AI planning and Geoapify for place autocomplete.
 
 ## Authentication and Authorization
 
-Voyai uses email/password authentication.
+Voyai uses email/password auth with bcrypt-hashed passwords.
 
-- Passwords are hashed with bcrypt before saving.
 - Login/register returns a short-lived JWT access token.
-- A refresh token is stored in an HTTP-only cookie for 7 days.
-- Protected backend routes require `Authorization: Bearer <accessToken>`.
-- The frontend Axios client automatically attaches the access token.
-- On a 401 response, the client calls `/api/auth/refresh`, stores the new access token, and retries the original request once.
-- Trips are always queried by both `_id` and `userId`, so one user cannot read, edit, or delete another user's trips by guessing an ID.
-
-The frontend also writes the access token to a lightweight cookie so Next.js middleware can redirect unauthenticated users away from `/dashboard`, `/trips`, and `/profile`. That cookie is used for route gating, while the backend still enforces real authorization.
+- A refresh token is kept in an HTTP-only cookie so users do not have to log in repeatedly.
+- Protected API routes require a bearer token, and the frontend retries once after refreshing an expired access token.
+- Trip access is scoped by `userId`, so users can only read, update, or delete their own trips.
+- Next.js middleware handles basic protected-route redirects, but the backend is the real authorization layer.
 
 ## AI Agent Design and Purpose
 
-The AI part is split into small travel agents instead of one giant prompt:
+The AI part is split into focused travel agents instead of one giant prompt:
 
-- Itinerary agent: creates realistic day-by-day activities for the selected destination, trip length, interests, and budget tier.
-- Budget agent: estimates flights/main transport, local transport, accommodation, food, activities, miscellaneous, and total cost.
-- Hotel agent: suggests 3-5 accommodation options that match the destination and budget.
-- Day regeneration agent: rewrites only one selected day using the user's instruction, while considering the rest of the itinerary.
-- Packing generator: creates a deterministic checklist from the destination, season, interests, and itinerary activities.
+- **Itinerary agent:** builds day-by-day activities around destination, trip length, interests, and budget.
+- **Budget agent:** estimates transport, stay, food, activities, miscellaneous cost, and total.
+- **Hotel agent:** suggests 3-5 stay options that match the destination and budget tier.
+- **Day regeneration agent:** rewrites one selected day using the user's custom instruction.
+- **Packing generator:** creates a deterministic checklist from destination, season, interests, and activities.
 
-The LLM services ask for compact JSON only, validate the response with Zod, and run a repair prompt if the model returns malformed JSON. This keeps model output usable by the UI instead of dumping raw prose into the database.
+LLM outputs are requested as JSON, validated with Zod, and repaired if needed before saving, so the UI gets structured data instead of raw text.
 
 ## Creative / Custom Feature
 
-The custom feature I would call out is the smart packing list.
+The custom feature is the smart packing list. It uses the destination, season, interests, trip length, and itinerary activities to suggest practical items instead of a generic checklist.
 
-After the trip is generated, Voyai can build a packing checklist from the destination, trip length, interests, season, and itinerary activities. It is not just a generic "bring clothes and charger" list. For example, beach trips can surface swimwear and waterproof pouches, hiking trips can add trail socks and a daypack, and culture-heavy trips can suggest modest outfits for religious or heritage sites.
-
-The packing list is grouped into clothing, documents, electronics, toiletries, health and safety, and destination-specific gear. Users can check items off, see packing progress, reset the list, and copy the checklist to the clipboard when they want to keep it outside the app.
+It also works like a real packing tool: items are grouped by category, users can check things off, track progress, reset the list, and copy it to the clipboard.
 
 ## Key Design Decisions and Trade-Offs
 
-- Separate frontend and backend: clearer security and API boundaries, but it means two deployments and CORS/cookie setup.
-- JWT access token plus refresh cookie: good UX without logging users out constantly, but token storage and cookie domain rules need care.
-- Zod validation on both sides: more boilerplate, but fewer bad API requests and safer LLM parsing.
-- AI output stored in MongoDB: fast trip detail pages and editable results, but generated data can become stale if prices or availability change.
-- OpenAI-compatible SDK with Novita: easy model/provider configuration, but the app still depends on external model latency and quota.
-- Packing list is deterministic: faster and more stable than another LLM call, but less creatively personalized than a fully model-generated list.
-- Regenerating the budget currently calls the full trip generation endpoint: simple reuse, but it can refresh more than just the budget.
+- I kept the frontend and backend separate so auth, database access, and AI calls stay on the server. The trade-off is a little more deployment/CORS setup.
+- Trips are saved after generation instead of being treated as one-time AI output. That makes the app faster to revisit and edit, but prices and suggestions can become stale over time.
+- AI responses are forced through JSON schemas before being stored. This adds extra code, but it keeps broken model output from crashing the UI.
+- The packing list is rule-based instead of fully AI-generated. That makes it fast, predictable, and cheap, but less imaginative than another model call.
 
 ## Known Limitations
 
-- Hotel suggestions and budgets are estimates, not live booking or pricing data.
-- The app does not currently integrate maps, live transport schedules, weather, or booking APIs.
-- Refresh tokens are not stored server-side for revocation tracking; logout clears the cookie, but already-issued tokens remain valid until expiry.
-- Production cookie behavior may need adjustment if frontend and backend are deployed on completely different domains.
-- The frontend route middleware checks for an access-token cookie, but backend authorization is still the real source of truth.
-- There is no admin role or team sharing yet; trips are private to the user who created them.
-- Generated itineraries are only as reliable as the model response and should be reviewed before real travel decisions.
-
+- Budgets, hotels, and itineraries are AI estimates, not live booking data.
+- There are no map, weather, transport, or payment integrations yet.
+- Trips are private to one user; there is no sharing or collaboration flow.
+- Refresh tokens are not stored server-side for forced revocation, so they rely on expiry and cookie clearing.
